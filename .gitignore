@@ -1,6 +1,5 @@
 data/raw/
-data/relevance_labels/*
-!data/relevance_labels/.gitkeep
+data/raw
 results/**/checkpoint-*/
 results/**/final_model/
 *.pt
