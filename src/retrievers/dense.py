@@ -25,19 +25,35 @@ def build_passage_embeddings(
     batch_size: int = 256,
     device: str | None = None,
     log_every_seconds: float = 120,
+    resume: bool = True,
 ) -> None:
+    """Assumes `passages` is the same list, in the same order, across resumed
+    runs (true for a fixed corpus file read in order) -- resuming just skips
+    re-embedding whatever prefix a progress sidecar file says is already done."""
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
     model = SentenceTransformer(model_name, device=device)
     dim = model.get_embedding_dimension()
 
+    n = len(passages)
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    mm = np.memmap(output_path, dtype=np.float16, mode="w+", shape=(len(passages), dim))
+    progress_path = output_path.with_suffix(".progress.txt")
 
-    n = len(passages)
+    already_done = 0
+    if resume and output_path.exists() and progress_path.exists():
+        try:
+            already_done = int(progress_path.read_text().strip())
+        except ValueError:
+            already_done = 0
+        if already_done > 0:
+            print(f"[progress] resuming from {already_done:,}/{n:,} passages already embedded", flush=True)
+
+    mode = "r+" if already_done > 0 else "w+"
+    mm = np.memmap(output_path, dtype=np.float16, mode=mode, shape=(n, dim))
+
     start_time = time.time()
     last_log = start_time
-    for start in range(0, n, batch_size):
+    for start in range(already_done, n, batch_size):
         batch = passages[start : start + batch_size]
         emb = model.encode(
             batch,
@@ -51,8 +67,10 @@ def build_passage_embeddings(
         now = time.time()
         if now - last_log >= log_every_seconds:
             done = start + len(batch)
+            mm.flush()
+            progress_path.write_text(str(done))
             elapsed = now - start_time
-            rate = done / elapsed
+            rate = (done - already_done) / elapsed
             eta_min = (n - done) / rate / 60
             print(
                 f"[progress] {done:,}/{n:,} passages ({100 * done / n:.1f}%) "
@@ -63,9 +81,10 @@ def build_passage_embeddings(
 
     mm.flush()
     del mm
-    np.save(output_path.with_suffix(".shape.npy"), np.array([len(passages), dim]))
+    progress_path.write_text(str(n))
+    np.save(output_path.with_suffix(".shape.npy"), np.array([n, dim]))
     total_min = (time.time() - start_time) / 60
-    print(f"[progress] done: {n:,} passages embedded in {total_min:.1f}m", flush=True)
+    print(f"[progress] done: {n:,} passages embedded ({n - already_done:,} this run) in {total_min:.1f}m", flush=True)
 
 
 @dataclass
