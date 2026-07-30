@@ -1,0 +1,16 @@
+data/raw/
+data/relevance_labels/*
+!data/relevance_labels/.gitkeep
+results/*
+!results/.gitkeep
+*.pt
+*.bin
+*.ckpt
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+.env
+venv/
+.venv/
+*.egg-info/

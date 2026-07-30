@@ -1,0 +1,7 @@
+model_name: microsoft/deberta-v3-base
+max_length: 192
+learning_rate: 1e-5
+batch_size: 8
+epochs: 3
+seed: 42
+output_dir: results/reader_closed_book
