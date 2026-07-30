@@ -29,7 +29,7 @@ def main():
     t1 = time.time()
     print(f"loaded {len(passages):,} passages in {t1 - t0:.1f}s")
 
-    build_passage_embeddings(passages, args.embeddings_path, batch_size=args.batch_size)
+    build_passage_embeddings(passages, args.embeddings_path, batch_size=args.batch_size, log_every_seconds=120)
     t2 = time.time()
     print(f"built embeddings in {t2 - t1:.1f}s ({len(passages) / (t2 - t1):.0f} passages/sec)")
 
