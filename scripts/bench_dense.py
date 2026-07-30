@@ -1,8 +1,9 @@
-"""Build dense passage embeddings over the ARC Corpus and sanity-check retrieval:
-timing and top-k passages for a few real ARC questions.
+"""Build dense passage embeddings over the ARC Corpus subset and sanity-check
+retrieval: timing and top-k passages for a few real ARC questions.
 
 Usage: python scripts/bench_dense.py [--max-passages N] [--embeddings-path PATH]
-(omit --max-passages to embed the full ~14.6M-sentence corpus)
+(omit --max-passages to use the shared CORPUS_SUBSET_SIZE from src/data/loader.py,
+which BM25/dense/hybrid all default to so they're compared over the same corpus)
 """
 import argparse
 import itertools
@@ -12,13 +13,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.data.loader import iter_corpus, load_questions
+from src.data.loader import CORPUS_SUBSET_SIZE, iter_corpus, load_questions
 from src.retrievers.dense import DenseRetriever, build_passage_embeddings
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--max-passages", type=int, default=None)
+    parser.add_argument("--max-passages", type=int, default=CORPUS_SUBSET_SIZE)
     parser.add_argument("--embeddings-path", default="/tmp/arc_data/dense_embeddings.npy")
     parser.add_argument("--batch-size", type=int, default=512)
     args = parser.parse_args()
