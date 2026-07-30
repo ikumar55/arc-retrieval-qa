@@ -13,7 +13,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.data.loader import iter_corpus, load_questions
+from src.data.loader import CORPUS_SUBSET_SIZE, iter_corpus, load_questions
 from src.retrievers.bm25 import BM25Retriever
 
 
@@ -25,7 +25,7 @@ def peak_rss_gb() -> float:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--max-passages", type=int, default=None)
+    parser.add_argument("--max-passages", type=int, default=CORPUS_SUBSET_SIZE)
     args = parser.parse_args()
 
     t0 = time.time()

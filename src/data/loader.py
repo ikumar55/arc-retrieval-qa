@@ -3,12 +3,20 @@
 Expects data/raw/ARC-V1-Feb2018-2/ to exist (see scripts/download_data.py).
 """
 import csv
+import itertools
 import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator
 
 DEFAULT_RAW_DIR = Path(__file__).resolve().parents[2] / "data" / "raw"
+
+# ~Half the full 14.6M-sentence ARC Corpus. AI2's README states the corpus is
+# already randomly shuffled, so a prefix is a valid random subsample -- this
+# just trades some recall for a ~90min (vs ~180min) embedding build. All of
+# BM25/dense/hybrid default to this same subset so they're compared over the
+# same corpus (a fair comparison requires that -- see PROJECT_BRIEF.md).
+CORPUS_SUBSET_SIZE = 7_300_000
 
 
 @dataclass
@@ -86,3 +94,9 @@ def iter_corpus(raw_dir: Path = DEFAULT_RAW_DIR) -> Iterator[str]:
 
 def count_corpus_lines(raw_dir: Path = DEFAULT_RAW_DIR) -> int:
     return sum(1 for _ in iter_corpus(raw_dir))
+
+
+def load_corpus_subset(raw_dir: Path = DEFAULT_RAW_DIR, n: int = CORPUS_SUBSET_SIZE) -> list[str]:
+    """The shared corpus subset used consistently by BM25/dense/hybrid. See
+    CORPUS_SUBSET_SIZE above for why this isn't just the full corpus."""
+    return list(itertools.islice(iter_corpus(raw_dir), n))

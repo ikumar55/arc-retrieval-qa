@@ -17,7 +17,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.data.loader import ArcQuestion, iter_corpus, load_questions
+from src.data.loader import CORPUS_SUBSET_SIZE, ArcQuestion, iter_corpus, load_questions
 from src.eval.relevance_heuristic import is_relevant
 from src.reader.model import filter_to_four_choice
 from src.retrievers.bm25 import BM25Retriever
@@ -45,7 +45,10 @@ def main():
     parser.add_argument("--output", default="data/relevance_labels/sample.json")
     parser.add_argument("--threshold", type=float, default=0.4)
     parser.add_argument("--n-per-split", type=int, default=N_PER_SPLIT)
-    parser.add_argument("--max-passages", type=int, default=None, help="for local testing on a subsample")
+    parser.add_argument(
+        "--max-passages", type=int, default=CORPUS_SUBSET_SIZE,
+        help="must match whatever built --embeddings-path, or dense retrieval will misalign",
+    )
     args = parser.parse_args()
 
     print("loading corpus + building retrievers...")
