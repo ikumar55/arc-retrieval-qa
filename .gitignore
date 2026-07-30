@@ -1,11 +1,12 @@
 data/raw/
 data/relevance_labels/*
 !data/relevance_labels/.gitkeep
-results/*
-!results/.gitkeep
+results/**/checkpoint-*/
+results/**/final_model/
 *.pt
 *.bin
 *.ckpt
+*.safetensors
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
