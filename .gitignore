@@ -1,4 +1,5 @@
 PROJECT_BRIEF.md
+paper/
 data/raw/
 data/raw
 results/**/checkpoint-*/
